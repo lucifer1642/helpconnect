@@ -50,12 +50,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/70 dark:bg-black/60 backdrop-blur-xl transition-all duration-300">
-      <div className="container flex h-20 items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate({ to: '/' })}>
-          <div className="bg-primary/10 p-2.5 rounded-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-inner">
-            <Droplet className="h-7 w-7 text-primary fill-current" />
+      <div className="container flex h-16 md:h-20 items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group" onClick={() => navigate({ to: '/' })}>
+          <div className="bg-primary/10 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-inner">
+            <Droplet className="h-5 w-5 sm:h-7 sm:w-7 text-primary fill-current" />
           </div>
-          <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-rose-600">HelpConnect</span>
+          <span className="text-xl sm:text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-rose-600">HelpConnect</span>
         </div>
 
         <nav className="hidden lg:flex items-center gap-2 bg-white/40 dark:bg-white/5 p-1.5 rounded-full border border-white/20 shadow-inner">

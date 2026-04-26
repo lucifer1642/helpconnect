@@ -144,7 +144,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: 40, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: "spring", damping: 25, stiffness: 100 }}
-                className="relative z-10 w-full max-w-[440px]"
+                className="relative z-10 w-full max-w-[440px] px-2 sm:px-0"
             >
                 {/* Visual Accent (Logo-like) */}
                 <div className="flex justify-center mb-8">

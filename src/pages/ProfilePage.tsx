@@ -97,7 +97,7 @@ export default function ProfilePage() {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter">My <span className="text-primary italic">Identity</span></h1>
+                        <h1 className="text-4xl xs:text-5xl md:text-7xl lg:text-[clamp(2.5rem,7vw,4.5rem)] font-black tracking-tighter">My <span className="text-primary italic">Identity</span></h1>
                         <p className="text-muted-foreground text-lg font-medium mt-2 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-green-500" /> Secure Encryption Active
                         </p>

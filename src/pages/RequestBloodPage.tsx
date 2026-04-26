@@ -131,20 +131,20 @@ export default function RequestBloodPage() {
         </div>
 
         {/* --- STEP INDICATOR --- */}
-        <div className="flex justify-center gap-4 mb-10">
+        <div className="flex justify-center gap-3 sm:gap-4 mb-10 px-2 sm:px-0">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
+            <div key={i} className="flex flex-col items-center gap-1.5 sm:gap-2">
               <motion.div 
                 animate={{ 
-                  scale: step === i ? 1.2 : 1,
+                  scale: step === i ? 1.15 : 1,
                   backgroundColor: step >= i ? 'var(--primary)' : 'rgba(var(--primary-rgb), 0.1)',
                   color: step >= i ? '#fff' : 'currentColor'
                 }}
-                className="w-10 h-10 rounded-full flex items-center justify-center font-black shadow-lg"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black shadow-lg text-sm sm:text-base"
               >
-                {step > i ? <CheckCircle className="w-5 h-5" /> : i}
+                {step > i ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> : i}
               </motion.div>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${step >= i ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest ${step >= i ? 'text-primary' : 'text-muted-foreground'}`}>
                 {i === 1 ? 'Patient' : i === 2 ? 'Location' : 'Confirm'}
               </span>
             </div>

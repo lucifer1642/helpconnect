@@ -37,13 +37,13 @@ export default function LandingPage() {
 
         {/* Blood Graffiti / Decorative Elements */}
         <motion.div style={{ y: yPos }} className="absolute inset-0 overflow-hidden pointer-events-none opacity-10 dark:opacity-5">
-          <Droplet className="absolute top-20 left-[10%] w-24 h-24 text-rose-600 -rotate-12" />
-          <Heart className="absolute top-40 right-[15%] w-32 h-32 text-rose-600 rotate-12" />
-          <Activity className="absolute bottom-20 left-[20%] w-40 h-40 text-rose-600 -rotate-6" />
-          <div className="absolute top-1/2 right-[5%] w-16 h-16 border-4 border-rose-600 rounded-full opacity-50" />
-          <Droplet className="absolute bottom-40 right-[25%] w-20 h-20 text-rose-600 rotate-45" />
-          <div className="absolute top-32 left-[30%] text-9xl font-black text-rose-600 opacity-20 select-none hidden lg:block">O+</div>
-          <div className="absolute bottom-20 right-[10%] text-9xl font-black text-rose-600 opacity-20 select-none hidden lg:block">AB-</div>
+          <Droplet className="absolute top-10 sm:top-20 left-[5%] sm:left-[10%] w-12 h-12 sm:w-24 sm:h-24 text-rose-600 -rotate-12" />
+          <Heart className="absolute top-20 sm:top-40 right-[10%] sm:right-[15%] w-16 h-16 sm:w-32 sm:h-32 text-rose-600 rotate-12" />
+          <Activity className="absolute bottom-20 left-[15%] sm:left-[20%] w-20 h-20 sm:w-40 sm:h-40 text-rose-600 -rotate-6" />
+          <div className="absolute top-1/2 right-[5%] w-8 h-8 sm:w-16 sm:h-16 border-2 sm:border-4 border-rose-600 rounded-full opacity-50" />
+          <Droplet className="absolute bottom-40 right-[20%] sm:right-[25%] w-10 h-10 sm:w-20 sm:h-20 text-rose-600 rotate-45" />
+          <div className="absolute top-32 left-[30%] text-9xl font-black text-rose-600 opacity-20 select-none hidden 2xl:block">O+</div>
+          <div className="absolute bottom-20 right-[10%] text-9xl font-black text-rose-600 opacity-20 select-none hidden 2xl:block">AB-</div>
         </motion.div>
 
         <div className="container relative z-10 px-4 md:px-6">
@@ -65,7 +65,7 @@ export default function LandingPage() {
 
               <motion.h1
                 variants={itemVariants}
-                className="text-5xl font-black tracking-tight sm:text-6xl md:text-7xl lg:text-7xl text-foreground drop-shadow-sm pb-2 leading-[1.1]"
+                className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-[clamp(3rem,8vw,5rem)] font-black tracking-tight text-foreground drop-shadow-sm pb-2 leading-[1.05]"
               >
                 Every Drop <span className="text-primary transparent bg-clip-text bg-gradient-to-r from-primary to-rose-600">Counts</span>, <br />
                 Every Life <span className="text-primary transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-500">Matters</span>.
@@ -81,7 +81,7 @@ export default function LandingPage() {
 
               <motion.div
                 variants={itemVariants}
-                className="flex flex-col sm:flex-row gap-6 min-w-[340px] pt-4"
+                className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-lg pt-4"
               >
                 <Button
                   size="lg"
@@ -108,10 +108,10 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="relative hidden lg:block h-[500px]"
+              className="relative hidden md:block h-[300px] sm:h-[400px] lg:h-[500px]"
             >
               {/* Central Radar Component instead of Chart */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] flex items-center justify-center">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] aspect-square flex items-center justify-center scale-75 sm:scale-90 lg:scale-100">
                 {/* Radar ripples */}
                 {[1, 2, 3].map((i) => (
                   <motion.div
@@ -143,7 +143,7 @@ export default function LandingPage() {
               <motion.div 
                 animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute top-[5%] right-[0%] bg-white text-foreground p-4 rounded-3xl shadow-2xl shadow-primary/20 flex items-center gap-4 border border-rose-100 z-20"
+                className="absolute top-[5%] right-[0%] bg-white text-foreground p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl shadow-primary/20 flex items-center gap-3 sm:gap-4 border border-rose-100 z-20 scale-90 sm:scale-100"
               >
                 <div className="text-4xl animate-bounce">
                   🩸
@@ -158,7 +158,7 @@ export default function LandingPage() {
               <motion.div 
                 animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-[5%] left-[0%] bg-card p-4 rounded-3xl shadow-2xl border border-white/20 flex items-center gap-4 z-20"
+                className="absolute bottom-[5%] left-[0%] bg-card p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 flex items-center gap-3 sm:gap-4 z-20 scale-90 sm:scale-100"
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-20"></div>

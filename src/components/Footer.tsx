@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           
           {/* Brand Column */}
           <div className="space-y-4">
@@ -76,11 +76,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+        <div className="pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5 text-center md:text-left">
             © {currentYear} HelpConnect. Crafted with <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}><Heart className="h-4 w-4 text-rose-500 fill-current" /></motion.div> for India.
           </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-foreground transition-colors">Cookie Policy</a>
