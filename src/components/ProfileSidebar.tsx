@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { supabase } from '../lib/supabase';
 import { useGetMyDonorProfile, useUpdateDonorProfile } from '../hooks/useDonors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,18 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Settings, Save, Loader2 } from 'lucide-react';
+import { User, Settings, Save, Loader2, MapPin, Phone, Droplet, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function ProfileSidebar() {
-    const { identity } = useInternetIdentity();
-    const userId = identity?.getPrincipal().toString() || '';
-
     const { data: currentDonor, isLoading } = useGetMyDonorProfile();
     const updateProfileMutation = useUpdateDonorProfile();
 
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     // Form States
     const [name, setName] = useState('');
@@ -28,7 +27,12 @@ export function ProfileSidebar() {
     const [bloodType, setBloodType] = useState<string>('');
     const [isAvailable, setIsAvailable] = useState(false);
 
-    // Initialize form with existing data when sidebar opens or donor loads
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+        });
+    }, []);
+
     useEffect(() => {
         if (currentDonor) {
             setName(currentDonor.name || '');
@@ -42,12 +46,7 @@ export function ProfileSidebar() {
 
     const handleSave = async () => {
         if (!name || !phone || !city || !bloodType) {
-            toast.error('Please fill in all required fields (Name, Phone, City, Blood Type).');
-            return;
-        }
-
-        if (!userId) {
-            toast.error('User not identified. Please log in.');
+            toast.error('Required fields: Name, Phone, City, Blood Type');
             return;
         }
 
@@ -56,197 +55,129 @@ export function ProfileSidebar() {
                 name,
                 contact_phone: phone,
                 location_city: city,
-                location_address: address, // Optional in UI but good to store
+                location_address: address,
                 blood_type: bloodType,
                 is_available: isAvailable,
             });
-
-            setIsEditing(false); // Exit edit mode on success
-            // Toast handled in hook
-        } catch (error) {
-            // Error handled in hook
-        }
+            setIsEditing(false);
+        } catch (error) {}
     };
 
-    if (!identity) return null;
+    if (!user) return null;
 
     return (
         <Sheet open={isOpen} onOpenChange={(open) => {
             setIsOpen(open);
-            if (!open) setIsEditing(false); // Reset edit mode when closing
+            if (!open) setIsEditing(false);
         }}>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 border border-gray-200 dark:border-gray-800">
-                    <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <Button variant="ghost" size="icon" className="rounded-2xl w-12 h-12 bg-white/40 dark:bg-white/5 border border-white/20 hover:scale-110 transition-all shadow-lg backdrop-blur-md">
+                    <Settings className="h-5 w-5 text-primary" />
                 </Button>
             </SheetTrigger>
-            <SheetContent className="overflow-y-auto w-[400px] sm:w-[540px]">
-                <SheetHeader className="mb-6 flex flex-row items-center justify-between">
-                    <SheetTitle>Your Profile</SheetTitle>
-                    {!isLoading && currentDonor && !isEditing && (
-                        <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-                            Edit Profile
-                        </Button>
-                    )}
-                </SheetHeader>
-
-                {isLoading && !currentDonor ? (
-                    <div className="flex justify-center py-10">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {!isEditing && currentDonor ? (
-                            // READ-ONLY VIEW
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Full Name</Label>
-                                        <p className="font-medium text-lg">{currentDonor.name}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Blood Type</Label>
-                                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                            {currentDonor.blood_type}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">City</Label>
-                                        <p className="font-medium">{currentDonor.location_city}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Phone</Label>
-                                        <p className="font-medium">{currentDonor.contact_phone}</p>
-                                    </div>
-                                </div>
-
-                                {currentDonor.location_address && (
-                                    <div className="space-y-1">
-                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Address</Label>
-                                        <p className="font-medium">{currentDonor.location_address}</p>
-                                    </div>
-                                )}
-
-                                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                                    <div className="space-y-1">
-                                        <Label>Availability Status</Label>
-                                        <p className="text-sm text-muted-foreground">
-                                            {currentDonor.is_available
-                                                ? <span className="text-green-600 font-medium flex items-center gap-1">Available to donate</span>
-                                                : <span className="text-muted-foreground flex items-center gap-1">Currently unavailable</span>}
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={currentDonor.is_available}
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                        ) : (
-                            // EDIT FORM
-                            <>
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Full Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="John Doe"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="bloodType">Blood Type</Label>
-                                    <Select value={bloodType} onValueChange={setBloodType}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select Blood Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((type) => (
-                                                <SelectItem key={type} value={type}>
-                                                    {type}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">Phone Number</Label>
-                                    <Input
-                                        id="phone"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="+1 234 567 890"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="city">City</Label>
-                                    <Input
-                                        id="city"
-                                        value={city}
-                                        onChange={(e) => setCity(e.target.value)}
-                                        placeholder="New York"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="address">Address (Optional)</Label>
-                                    <Input
-                                        id="address"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        placeholder="123 Main St"
-                                    />
-                                </div>
-
-                                <div className="flex items-center justify-between space-y-0 rounded-md border p-4">
-                                    <div className="space-y-1">
-                                        <Label htmlFor="available">Available for Donation</Label>
-                                        <p className="text-sm text-muted-foreground">
-                                            Turn off if you cannot donate right now.
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        id="available"
-                                        checked={isAvailable}
-                                        onCheckedChange={setIsAvailable}
-                                    />
-                                </div>
-
-                                <div className="flex gap-3">
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1"
-                                        onClick={() => setIsEditing(false)}
-                                        disabled={updateProfileMutation.isPending}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="flex-1"
-                                        onClick={handleSave}
-                                        disabled={updateProfileMutation.isPending}
-                                    >
-                                        {updateProfileMutation.isPending ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Saving...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Save className="mr-2 h-4 w-4" />
-                                                Save Profile
-                                            </>
-                                        )}
-                                    </Button>
-                                </div>
-                            </>
+            <SheetContent className="w-full sm:w-[500px] border-l-white/10 bg-white/95 dark:bg-black/95 backdrop-blur-2xl">
+                <SheetHeader className="mb-8">
+                    <div className="flex items-center justify-between">
+                        <SheetTitle className="text-3xl font-black tracking-tighter">Vault <span className="text-primary italic">Settings</span></SheetTitle>
+                        {!isLoading && currentDonor && !isEditing && (
+                            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="rounded-xl font-black border-primary/20 text-primary">
+                                Edit Profile
+                            </Button>
                         )}
                     </div>
-                )}
+                </SheetHeader>
+
+                <AnimatePresence mode="wait">
+                    {isLoading && !currentDonor ? (
+                        <div className="flex flex-col items-center justify-center py-20 gap-4">
+                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                            <p className="text-xs font-black tracking-widest text-muted-foreground uppercase">Retrieving Data...</p>
+                        </div>
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-8"
+                        >
+                            {!isEditing && currentDonor ? (
+                                <div className="space-y-8">
+                                    <div className="bg-primary/5 p-8 rounded-[40px] border border-primary/10 text-center relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -mr-16 -mt-16 group-hover:scale-125 transition-transform" />
+                                        <div className="w-24 h-24 bg-primary rounded-[32px] flex items-center justify-center mx-auto mb-4 shadow-xl">
+                                            <span className="text-3xl font-black text-white">{currentDonor.blood_type}</span>
+                                        </div>
+                                        <h4 className="text-2xl font-black">{currentDonor.name}</h4>
+                                        <p className="text-muted-foreground font-bold text-xs tracking-widest uppercase mt-1">Verified Donor Network</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <InfoPill icon={<MapPin className="w-4 h-4" />} label="City" value={currentDonor.location_city} />
+                                        <InfoPill icon={<Phone className="w-4 h-4" />} label="Phone" value={currentDonor.contact_phone} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-6 bg-white dark:bg-white/5 rounded-3xl border border-white/10 shadow-inner">
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-black tracking-widest text-muted-foreground uppercase">Availability</p>
+                                            <p className={`font-black text-sm ${currentDonor.is_available ? 'text-green-500' : 'text-muted-foreground'}`}>
+                                                {currentDonor.is_available ? '● READY TO ASSIST' : '○ OFFLINE'}
+                                            </p>
+                                        </div>
+                                        <Switch checked={currentDonor.is_available} disabled className="data-[state=checked]:bg-green-500" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Full Name</Label>
+                                        <Input value={name} onChange={e => setName(e.target.value)} className="h-14 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Blood Type</Label>
+                                            <select value={bloodType} onChange={e => setBloodType(e.target.value)} className="w-full h-14 px-4 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20 font-black">
+                                                {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Phone</Label>
+                                            <Input value={phone} onChange={e => setPhone(e.target.value)} className="h-14 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest ml-1">City</Label>
+                                        <Input value={city} onChange={e => setCity(e.target.value)} className="h-14 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20" />
+                                    </div>
+                                    <div className="flex items-center justify-between p-6 bg-white dark:bg-white/5 rounded-3xl border border-white/10">
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-black">Active in Radar</p>
+                                            <p className="text-xs text-muted-foreground font-medium">Be visible to emergency requests</p>
+                                        </div>
+                                        <Switch checked={isAvailable} onCheckedChange={setIsAvailable} className="data-[state=checked]:bg-green-500" />
+                                    </div>
+                                    <div className="flex gap-4 pt-4">
+                                        <Button variant="ghost" onClick={() => setIsEditing(false)} className="flex-1 h-14 rounded-2xl font-black">Cancel</Button>
+                                        <Button onClick={handleSave} disabled={updateProfileMutation.isPending} className="flex-[2] h-14 rounded-2xl font-black shadow-xl shadow-primary/20">
+                                            {updateProfileMutation.isPending ? <Loader2 className="animate-spin" /> : <><Save className="mr-2 w-4 h-4" /> Save Vault</>}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </SheetContent>
         </Sheet>
+    );
+}
+
+function InfoPill({ icon, label, value }: { icon: any, label: string, value: string }) {
+    return (
+        <div className="p-4 bg-white dark:bg-white/5 rounded-3xl border border-white/10 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+                {icon}
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+            </div>
+            <p className="font-black text-sm truncate">{value}</p>
+        </div>
     );
 }

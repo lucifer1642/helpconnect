@@ -1,22 +1,47 @@
-import { Outlet } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from '@tanstack/react-router';
+import { useGetMyDonorProfile } from '../hooks/useDonors';
 import Header from './Header';
 import Footer from './Footer';
 
 export default function Layout() {
-  return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
-      <Header />
-      <main className="flex-1 relative">
-        {/* Global Bright Gradient Background */}
-        <div className="absolute inset-0 bg-slate-50 dark:bg-slate-950 -z-20" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-rose-100/40 via-transparent to-transparent -z-10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-orange-100/40 via-transparent to-transparent -z-10 blur-3xl opacity-70" />
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { data: profile, isLoading } = useGetMyDonorProfile();
 
-        <div className="relative z-10">
-          <Outlet />
+    useEffect(() => {
+        // Only run check if profile is loaded and we are not already on onboarding/login/home
+        if (!isLoading && profile) {
+            const isComplete = 
+                profile.name && 
+                profile.blood_type && 
+                profile.blood_type !== 'Unknown' && 
+                profile.location_city && 
+                profile.contact_phone;
+
+            const isWhitelistedPage = 
+                location.pathname === '/onboarding' || 
+                location.pathname === '/login';
+
+            if (!isComplete && !isWhitelistedPage) {
+                navigate({ to: '/onboarding' });
+            }
+        }
+    }, [profile, isLoading, location.pathname, navigate]);
+
+    return (
+        <div className="flex min-h-screen flex-col bg-background selection:bg-primary selection:text-white">
+            <Header />
+            <main className="flex-1 relative">
+                {/* Subtle Global Accent Gradients */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_-10%,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent -z-10 pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_80%,_var(--tw-gradient-stops))] from-rose-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
+
+                <div className="relative">
+                    <Outlet />
+                </div>
+            </main>
+            <Footer />
         </div>
-      </main>
-      <Footer />
-    </div>
-  );
+    );
 }

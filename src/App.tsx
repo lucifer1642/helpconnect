@@ -9,6 +9,7 @@ import DonorDashboardPage from './pages/DonorDashboardPage';
 import LoginPage from './pages/LoginPage';
 import FinalOutcomePage from './pages/FinalOutcomePage';
 import ProfilePage from './pages/ProfilePage';
+import OnboardingPage from './pages/OnboardingPage';
 import Layout from './components/Layout';
 
 const rootRoute = createRootRoute({
@@ -66,6 +67,12 @@ const finalOutcomeRoute = createRoute({
   }),
 });
 
+const onboardingRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/onboarding',
+    component: OnboardingPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -75,6 +82,7 @@ const routeTree = rootRoute.addChildren([
   donorDashboardRoute,
   profileRoute,
   finalOutcomeRoute,
+  onboardingRoute,
 ]);
 
 const router = createRouter({ routeTree });

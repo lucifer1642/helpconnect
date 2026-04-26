@@ -58,28 +58,51 @@ export const useUpdateDonorProfile = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
-            // We use upsert to handle both creation and updates
-            const { data, error } = await supabase
+            // 1. Check if profile exists
+            const { data: existing } = await supabase
                 .from('donors')
-                .upsert({
-                    ...profileData,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString(),
-                }, {
-                    onConflict: 'user_id' // Identify by user_id
-                })
-                .select()
-                .single();
+                .select('name')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (!existing) {
+                // 2. If it doesn't exist, we must provide 'name' for the INSERT
+                const { data, error } = await supabase
+                    .from('donors')
+                    .insert({
+                        user_id: user.id,
+                        name: profileData.name || user.user_metadata?.name || 'New User',
+                        blood_type: profileData.blood_type || 'Unknown',
+                        location_city: profileData.location_city || 'Unknown',
+                        contact_phone: profileData.contact_phone || 'Unknown',
+                        ...profileData,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .select()
+                    .single();
+                if (error) throw error;
+                return data as DonorProfile;
+            } else {
+                // 3. If it exists, we can safely partial update
+                const { data, error } = await supabase
+                    .from('donors')
+                    .update({
+                        ...profileData,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq('user_id', user.id)
+                    .select()
+                    .single();
+                if (error) throw error;
+                return data as DonorProfile;
+            }
 
             if (error) throw error;
             return data as DonorProfile;
         },
-        onSuccess: (updatedProfile) => {
-            // Invalidate specific profile query
-            queryClient.invalidateQueries({ queryKey: DONOR_KEYS.profile(updatedProfile.user_id) });
-            // Invalidate all likely for admin views
+        onSuccess: () => {
+            // Invalidate everything related to donors to ensure UI sync
             queryClient.invalidateQueries({ queryKey: DONOR_KEYS.all });
-
             toast.success('Profile updated successfully!');
         },
         onError: (error: any) => {
