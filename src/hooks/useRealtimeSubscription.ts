@@ -44,7 +44,7 @@ export const useRealtimeSubscription = ({ userId, userBloodType, enabled = true 
                             description: `${newRequest.recipient_name} needs ${newRequest.blood_type} blood near you.`,
                             action: {
                                 label: 'View',
-                                onClick: () => window.location.href = '/dashboard' // Adjust route as needed
+                                onClick: () => window.location.href = '/donor-dashboard' // Adjust route as needed
                             }
                         });
                     }
@@ -76,15 +76,45 @@ export const useRealtimeSubscription = ({ userId, userBloodType, enabled = true 
                     table: 'request_responses',
                 },
                 (payload) => {
-                    // Someone responded to a request
-                    // We can't easily filter by "my request" here without joining, 
-                    // so we invalidate the specific query for responses causing a refetch.
-                    // Also invalidate my requests to potentially show "Responses: X" count if we had that.
+                    const newResponse = payload.new as any;
 
-                    // For now, just generic invalidation for safety
+                    // Invalidate all request queries so both sides see updates
                     queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.all });
+                    
+                    // Invalidate the specific request_response query for this request
+                    queryClient.invalidateQueries({ queryKey: ['request_response', newResponse.request_id] });
+                    
+                    // Invalidate my_responses so the donor dashboard filters update
+                    queryClient.invalidateQueries({ queryKey: ['my_responses'] });
+
                     if (userId) {
                         queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.byDonor(userId) });
+                        queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.byDonor('me') });
+                    }
+
+                    // Notify the requester if someone accepted their request
+                    if (newResponse.status === 'accepted' && newResponse.donor_id !== userId) {
+                        toast.success('A donor has accepted your request! 🎉', {
+                            description: 'Check your requests for details.',
+                        });
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'request_responses',
+                },
+                (payload) => {
+                    // Invalidate all response-related queries
+                    queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.all });
+                    queryClient.invalidateQueries({ queryKey: ['request_response'] });
+                    queryClient.invalidateQueries({ queryKey: ['my_responses'] });
+                    if (userId) {
+                        queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.byDonor(userId) });
+                        queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.byDonor('me') });
                     }
                 }
             )

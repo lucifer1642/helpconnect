@@ -214,12 +214,18 @@ function PremiumRequestCard({ request, donorId }: { request: BloodRequest, donor
   const [isExpanded, setIsExpanded] = useState(false);
   const respondMutation = useRespondToRequest();
   const { data: existingResponse } = useGetDonorResponse(request.id, donorId);
+  const navigate = useNavigate();
 
   const handleResponse = async (status: 'accepted' | 'declined') => {
     if (existingResponse) return toast.error(`Already responded: ${existingResponse.status}`);
     try {
       await respondMutation.mutateAsync({ requestId: request.id, status });
       toast.success(status === 'accepted' ? 'Match Confirmed! Coordination starting...' : 'Request Discarded');
+      if (status === 'accepted') {
+        setTimeout(() => {
+          navigate({ to: '/status-tracking' });
+        }, 1500);
+      }
     } catch (e: any) {
       toast.error(e.message);
     }

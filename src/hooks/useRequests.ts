@@ -348,12 +348,16 @@ export const useRespondToRequest = () => {
                 .single();
 
             if (error) throw error;
+
             return data;
         },
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.all });
             // Invalidate the specific response query so the UI updates immediately
             queryClient.invalidateQueries({ queryKey: ['request_response', variables.requestId] });
+            // Invalidate my_responses so the dashboard filters update
+            queryClient.invalidateQueries({ queryKey: ['my_responses'] });
+            queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.byDonor('me') });
 
             toast.success(variables.status === 'accepted' ? 'Request accepted!' : 'Response recorded!');
         },

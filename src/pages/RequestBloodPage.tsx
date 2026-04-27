@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useCreateBloodRequest } from '../hooks/useRequests';
 import { AlertCircle, CheckCircle, Loader2, Droplet, Heart, Activity, User, Phone, MapPin, Hospital, FileText, ChevronRight, ChevronLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -21,6 +22,7 @@ interface RequestFormData {
 }
 
 export default function RequestBloodPage() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string>('');
   const createRequest = useCreateBloodRequest();
   const { scrollY } = useScroll();
@@ -81,10 +83,10 @@ export default function RequestBloodPage() {
     if (!userId) return toast.error('Please log in first');
 
     try {
-      await createRequest.mutateAsync({ ...formData, donor_id: userId });
+      await createRequest.mutateAsync({ ...formData });
       toast.success('Request broadcasted successfully!');
       setTimeout(() => {
-        window.location.href = '/status-tracking';
+        navigate({ to: '/status-tracking' });
       }, 1500);
     } catch (error) {
       console.error('Error:', error);

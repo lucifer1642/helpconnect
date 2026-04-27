@@ -96,9 +96,6 @@ export const useUpdateDonorProfile = () => {
                 if (error) throw error;
                 return data as DonorProfile;
             }
-
-            if (error) throw error;
-            return data as DonorProfile;
         },
         onSuccess: () => {
             // Invalidate everything related to donors to ensure UI sync

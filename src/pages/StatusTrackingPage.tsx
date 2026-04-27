@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { RefreshCw, AlertCircle, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, Droplet, Heart, Activity, Search, MapPin, Hospital, Phone, Trash2 } from 'lucide-react';
 import { useGetDonorRequests, useRefreshRequests, useCancelRequest, useDiscardRequest, BloodRequest } from '../hooks/useRequests';
 import { supabase } from '../lib/supabase';
@@ -7,6 +8,7 @@ import { useRealtimeSubscription } from '../hooks/useRealtimeSubscription';
 import { toast } from 'sonner';
 
 export default function StatusTrackingPage() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function StatusTrackingPage() {
             <h3 className="text-2xl font-black mb-2">No Active Requests</h3>
             <p className="text-muted-foreground font-medium mb-8">You haven't broadcasted any emergency requests yet.</p>
             <button 
-                onClick={() => window.location.href = '/request-blood'}
+                onClick={() => navigate({ to: '/request-blood' })}
                 className="h-14 px-8 bg-primary text-white rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
             >
                 Broadcast New Request
